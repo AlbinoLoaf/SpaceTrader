@@ -44,7 +44,7 @@ def get_location( waypoiuntID:str):
     data = r.get(url=url,headers=Auth_header)
 #get_location(Agent.headquarters)
 
-def get_system(waypoiuntID:str):
+def get_system(waypoiuntID:str, show:bool):
     LS = waypoiuntID.split("-")[0:2]
     url=c.API_base+"systems/"+LS[0]+"-"+LS[1]
     data = r.get(url=url,headers=Auth_header).json()
@@ -55,9 +55,8 @@ def get_system(waypoiuntID:str):
         xy_set[0,i]= key['x']
         xy_set[1,i]= key['y']
         i=i+1
-    print(xy_set)    
-    plt.scatter(xy_set[0,:],xy_set[1,:])
-    plt.show()
-get_system(Agent.headquarters)
-#curl 'https://api.spacetraders.io/v2/systems/:systemSymbol/waypoints/:waypointSymbol' \
- #--header 'Authorization: Bearer INSERT_TOKEN_HERE'
+    if show:
+        plt.scatter(xy_set[0,:],xy_set[1,:])
+        plt.show()
+#get_system(Agent.headquarters,True)
+
