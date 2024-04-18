@@ -49,14 +49,27 @@ def get_system(waypoiuntID:str, show:bool):
     url=c.API_base+"systems/"+LS[0]+"-"+LS[1]
     data = r.get(url=url,headers=Auth_header).json()
     size= len(data['data']['waypoints'])
-    xy_set = np.zeros((2,size))
-    i= 0
+    waypointset= {'FUEL_STATION':0, 'ASTEROID_BASE':1, 'PLANET':2, 'ASTEROID':3, 'ORBITAL_STATION':4, 'GAS_GIANT':5, 'JUMP_GATE':6, 'ENGINEERED_ASTEROID':7, 'MOON':8}
+    colour=['b','g','r','c','m','y','k','tab:orange','tab:purple']
+    xy_set = np.zeros((len(waypointset)*2,size))
+    i=0
+    fig, ax = plt.subplots()
     for key in data['data']['waypoints']:
-        xy_set[0,i]= key['x']
-        xy_set[1,i]= key['y']
+        index = waypointset[key['type']]*2
+        xy_set[index,i]= key['x']
+        xy_set[index+1,i]= key['y']
         i=i+1
     if show:
-        plt.scatter(xy_set[0,:],xy_set[1,:])
+        for key in waypointset:
+            index = waypointset[key] *2
+            ax.scatter(xy_set[index,:],xy_set[index+1,:],label=key,color=colour[waypointset[key]])
+        ax.grid(True)
+        ax.legend()
+        ax.grid(False)
         plt.show()
-#get_system(Agent.headquarters,True)
+get_system(Agent.headquarters,True)
 
+def get_myContracts():
+    url= c.API_base+"my/contracts"
+    data = r.get(url=url,headers=Auth_header)
+    
