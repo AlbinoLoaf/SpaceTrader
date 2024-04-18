@@ -1,6 +1,9 @@
 import requests as r
-import json 
 import config as c
+import json
+from types import SimpleNamespace as sn
+import matplotlib.pyplot as plt
+import numpy as np
 
 def post_Registration():
     url = c.API_base +"register"
@@ -10,38 +13,51 @@ def post_Registration():
     }
     return r.post(url=url, data=data)
 
-def post_myAgent():
-    url="https://api.spacetraders.io/v2/my/agent"
-    header = {'Authorization':"Bearer " + c.Token}
-    return r.post(url=url,headers=header)
+Auth_header = {'Authorization':"Bearer " + c.Token}
 
+'''
+to get agent 
+use x,y = get_Agent()
+'''
+def get_Agent_data():
+    url=c.API_base+"my/agent"
+    recieved_data = r.get(url=url,headers=Auth_header).json()
+    return recieved_data['data']
+'''
+creates an object with 
+    accountId
+    symbol 
+    headquarters
+    credits
+    startingFaction
+    shipCount
+'''
+def get_myAgent():
+    url=c.API_base+"my/agent"
+    recieved_data = r.get(url=url,headers=Auth_header).json()
+    return json.loads(json.dumps(recieved_data['data']),object_hook=lambda d: sn(**d))
+Agent=get_myAgent()
+#print(Agent)
+def get_location( waypoiuntID:str):
+    LS = waypoiuntID.split("-")[0:2]
+    url=c.API_base+"systems/"+LS[0]+"-"+LS[1]+"/waypoints/"+waypoiuntID
+    data = r.get(url=url,headers=Auth_header)
+#get_location(Agent.headquarters)
 
-resp = post_myAgent()
-print(resp.text)
-
-
-
-
-
-
-
-
-
-# def get_stock_data():
-#     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=IBM&interval=5min&outputsize=full&apikey=demo"
-#     response = requests.get(url)
-     
-#     # Check if the response is successful
-#     if response.status_code == 200:
-#         data = response.json()
-#         last_refreshed = data["Meta Data"]["3. Last Refreshed"]
-#         price = data["Time Series (5min)"][last_refreshed]["1. open"]
-#         return price
-#     else:
-#         return None
- 
-# stock_prices = {}
-# price = get_stock_data()
-# symbol="IBM"
-# if price is not None:
-#     stock_prices[symbol] = price
+def get_system(waypoiuntID:str):
+    LS = waypoiuntID.split("-")[0:2]
+    url=c.API_base+"systems/"+LS[0]+"-"+LS[1]
+    data = r.get(url=url,headers=Auth_header).json()
+    size= len(data['data']['waypoints'])
+    xy_set = np.zeros((2,size))
+    i= 0
+    for key in data['data']['waypoints']:
+        xy_set[0,i]= key['x']
+        xy_set[1,i]= key['y']
+        i=i+1
+    print(xy_set)    
+    plt.scatter(xy_set[0,:],xy_set[1,:])
+    plt.show()
+get_system(Agent.headquarters)
+#curl 'https://api.spacetraders.io/v2/systems/:systemSymbol/waypoints/:waypointSymbol' \
+ #--header 'Authorization: Bearer INSERT_TOKEN_HERE'
