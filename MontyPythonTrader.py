@@ -53,6 +53,7 @@ def get_system(waypoiuntID:str, show:bool):
     colour=['b','g','r','c','m','y','k','tab:orange','tab:purple']
     xy_set = np.zeros((len(waypointset)*2,size))
     i=0
+    print(data)
     fig, ax = plt.subplots()
     for key in data['data']['waypoints']:
         index = waypointset[key['type']]*2
@@ -72,4 +73,6 @@ get_system(Agent.headquarters,True)
 def get_myContracts():
     url= c.API_base+"my/contracts"
     data = r.get(url=url,headers=Auth_header)
-    
+    return data.text
+
+#print(get_myContracts())
